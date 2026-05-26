@@ -1,0 +1,11 @@
+<h1>Edit Sale</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Update Sale</button>
+
+</form>

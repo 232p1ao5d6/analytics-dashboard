@@ -1,0 +1,202 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Analytics Dashboard</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+<h1>Sales Analytics Dashboard</h1>
+
+<h2>Dashboard Summary</h2>
+
+<div class="cards">
+
+    <div class="card">
+        <h3>Total Revenue</h3>
+        <p>₹{{ total_revenue }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Orders</h3>
+        <p>{{ total_orders }}</p>
+    </div>
+
+</div>
+
+<h2>Add New Sale</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Add Sale</button>
+
+</form>
+
+<hr>
+
+<h2>Search Product</h2>
+
+<form method="GET">
+
+    <input type="text" name="q" placeholder="Search product">
+
+    <button type="submit">Search</button>
+
+</form>
+
+<br>
+
+<h2>Sales Records</h2>
+
+<table>
+
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Date</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for sale in sales %}
+
+    <tr>
+
+        <td>{{ sale.product_name }}</td>
+
+        <td>{{ sale.quantity }}</td>
+
+        <td>₹{{ sale.price }}</td>
+
+        <td>{{ sale.created_at }}</td>
+
+        <td>
+
+            <a href="/edit/{{ sale.id }}/">Edit</a>
+
+            |
+
+            <a href="/delete/{{ sale.id }}/">Delete</a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<h2>Sales Analytics Chart</h2>
+
+<canvas id="salesChart" width="400" height="150"></canvas>
+
+<h2>Revenue Share Pie Chart</h2>
+
+<canvas id="pieChart" width="400" height="150"></canvas>
+
+<h2>Monthly Revenue Analytics</h2>
+
+<canvas id="lineChart" width="400" height="150"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const productNames = {{ product_names|safe }};
+const productTotals = {{ product_totals|safe }};
+
+const ctx = document.getElementById('salesChart');
+
+new Chart(ctx, {
+
+    type: 'bar',
+
+    data: {
+
+        labels: productNames,
+
+        datasets: [{
+
+            label: 'Revenue',
+
+            data: productTotals,
+
+            borderWidth: 1
+        }]
+    },
+
+    options: {
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+const pieCtx = document.getElementById('pieChart');
+
+new Chart(pieCtx, {
+
+    type: 'pie',
+
+    data: {
+
+        labels: productNames,
+
+        datasets: [{
+
+            label: 'Revenue Share',
+
+            data: productTotals,
+
+            borderWidth: 1
+        }]
+    }
+});
+
+const months = {{ months|safe }};
+const monthlyRevenue = {{ monthly_revenue|safe }};
+
+const lineCtx = document.getElementById('lineChart');
+
+new Chart(lineCtx, {
+
+    type: 'line',
+
+    data: {
+
+        labels: months,
+
+        datasets: [{
+
+            label: 'Monthly Revenue',
+
+            data: monthlyRevenue,
+
+            borderWidth: 2,
+
+            tension: 0.3
+        }]
+    }
+});
+
+</script>
+
+</body>
+
+</html>
